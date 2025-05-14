@@ -107,3 +107,128 @@ imbalanced-learn
 And install with:
 
 pip install -r requirements.txt
+```
+
+## Data
+
+The notebook expects a CSV file named `predictive_maintenance.csv` in the same directory as the notebook (or a specified path).
+
+---
+
+## Usage
+
+1. Ensure all dependencies are installed.  
+2. Place `predictive_maintenance.csv` in the appropriate location.  
+3. Open the Jupyter Notebook: `ADS_assignment2.ipynb`.  
+4. Run the cells sequentially from top to bottom.  
+5. The notebook will perform:
+   - EDA  
+   - Data preprocessing  
+   - Model training & evaluation  
+   - Scenarios:  
+     - Cleaned data (no leakage)  
+     - Leaky data (includes “Failure Type”)  
+     - With and without SMOTE  
+6. Observe printed outputs, tables, and visualizations to understand data characteristics and model performance.
+
+---
+
+## Results Summary
+
+### Models without Leakage (Cleaned Data)
+
+- **Logistic Regression**  
+  - Accuracy: ~0.9665  
+  - Recall (failure class): 0.0294  
+  - F1-score (failure class): 0.0563  
+
+- **Naive Bayes**  
+  - Accuracy: ~0.9660  
+  - Recall (failure class): 0.0441  
+  - F1-score (failure class): 0.0811  
+
+> **Interpretation:**  
+> High overall accuracy driven by the majority “No Failure” class; both models struggle to detect the rare “Failure” events.
+
+### Models with Leakage (Including Failure Type)
+
+- **Logistic Regression & Naive Bayes**  
+  - Accuracy: ~0.9990  
+  - Recall (failure): 0.9706  
+  - F1-score (failure): 0.9851  
+
+> **Interpretation:**  
+> The `Failure Type` feature directly reveals the target, resulting in unrealistically high performance—demonstrating severe data leakage.
+
+### Impact of SMOTE (on Cleaned Data)
+
+- **Logistic Regression + SMOTE**  
+  - Accuracy: ~0.7340  
+  - Recall (failure): 0.7794  
+  - F1-score (failure): 0.1661  
+
+- **Naive Bayes + SMOTE**  
+  - Accuracy: ~0.7625  
+  - Recall (failure): 0.7647  
+  - F1-score (failure): 0.1796  
+
+> **Interpretation:**  
+> SMOTE balances classes, significantly improving detection (recall & F1) of the minority failure class at the cost of some overall accuracy.
+
+### SMOTE on Leaky Data
+
+- Performance remains near-perfect due to the dominating leaky feature.
+
+---
+
+## Leakage Detection Techniques Discussed
+
+- **Correlation & Crosstab Analysis**  
+  - Identify features highly correlated with the target.  
+  - Use crosstabs for categorical variables to spot near-perfect predictors.
+
+- **Random Forest Feature Importance**  
+  - Train a Random Forest and inspect feature importances.  
+  - Leaky or proxy-target features often stand out with disproportionately high importance.
+
+> *Limitations of these techniques are also briefly discussed in the notebook.*
+
+---
+
+## Code Structure Highlights
+
+- **Cells [2–6]**:  
+  - Imports, load data, initial EDA (`.info()`, `.describe()`, missing values).
+
+- **Cells [7–12]**:  
+  - Target analysis, `Failure Type` & `Type` columns, crosstabs, correlations.
+
+- **Cells [13–15]**:  
+  - Correlation matrix for numeric features vs. `Target`.
+
+- **Cells [16–21]**:  
+  - Clean data pipeline (no leakage): one-hot encoding, scaling.
+
+- **Cells [22–25]**:  
+  - Leaky data pipeline & Random Forest feature importance.
+
+- **Cell [26]**:  
+  - Markdown discussion of leakage detection methods.
+
+- **Cell [27+]**:  
+  - Model training (Logistic Regression, Naive Bayes) on clean & leaky sets.  
+  - Evaluation functions.
+
+- **Subsequent Cells**:  
+  - SMOTE application and re-evaluation.
+
+---
+
+## Potential Future Work
+
+- Explore advanced classifiers (e.g., Gradient Boosting, SVM, Neural Networks).  
+- Implement more sophisticated feature engineering.  
+- Perform hyperparameter tuning (Grid/Random search).  
+- Investigate alternative imbalance techniques (undersampling, cost-sensitive learning).  
+- Use time-based train/test splits for temporal consistency.  
+- Deploy the best non-leaky model as a production predictive tool.  
